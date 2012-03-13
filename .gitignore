@@ -1,0 +1,9 @@
+gen
+libs
+obj
+bin
+*~
+local.properties
+jni/.kdev4/
+jni/.kdev_include_paths
+jni/jni.kdev4
