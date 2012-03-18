@@ -19,18 +19,18 @@ bool initOgreRoot(){
 		// Create logs that funnel to android logs
 		Ogre::LogManager *lm = OGRE_NEW Ogre::LogManager();
 		Ogre::Log *l = lm->createLog("AndroidLog", true, true, true);
-		g_ll = OGRE_NEW AndroidLogListener();
+		g_ll = new AndroidLogListener();
 		l->addListener(g_ll);
 		
 		// Create a root object
-		g_root = OGRE_NEW Ogre::Root("", "", "");
+		g_root = new Ogre::Root("", "", "");
 		
 		// Register the ES2 plugin
-		g_gles2Plugin = OGRE_NEW Ogre::GLES2Plugin();
+		g_gles2Plugin = new Ogre::GLES2Plugin();
 		Ogre::Root::getSingleton().installPlugin(g_gles2Plugin);
 		
 		// Register particle plugin
-		g_pfxPlugin = OGRE_NEW Ogre::ParticleFXPlugin();
+		g_pfxPlugin = new Ogre::ParticleFXPlugin();
 		Ogre::Root::getSingleton().installPlugin(g_pfxPlugin);
 		
 		// Grab the available render systems

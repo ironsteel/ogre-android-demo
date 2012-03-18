@@ -11,69 +11,16 @@
 #include <android/log.h>
 
 #include "AndroidArchive.h"
+#include "AndroidMultiTouch.h"
+#include "AndroidKeyboard.h"
+
+
 
 #define  LOG_TAG    "libogresamplebrowser"
 #define  LOGI(...)  __android_log_print(ANDROID_LOG_INFO,LOG_TAG,__VA_ARGS__)
 #define  LOGE(...)  __android_log_print(ANDROID_LOG_ERROR,LOG_TAG,__VA_ARGS__)
 
-class AndroidMultiTouch : public OIS::MultiTouch
-{
-public:
-	AndroidMultiTouch():OIS::MultiTouch("DWM", false, 0, 0){}
-	
-	/** @copydoc Object::setBuffered */
-	virtual void setBuffered(bool buffered){}
 
-	/** @copydoc Object::capture */
-	virtual void capture(){}
-
-	/** @copydoc Object::queryInterface */
-	virtual OIS::Interface* queryInterface(OIS::Interface::IType type) {return 0;}
-
-	/** @copydoc Object::_initialize */
-	virtual void _initialize(){}
-	
-	OIS::MultiTouchState &getMultiTouchState(int i){
-		while(i >= mStates.size()){
-			OIS::MultiTouchState state;
-			state.width = getRenderWindow()->getWidth();
-			state.height = getRenderWindow()->getHeight();
-			mStates.push_back(state);
-		}
-		return mStates[i];
-	}
-};
-
-class AndroidKeyboard : public OIS::Keyboard
-{
-public:
-	AndroidKeyboard():OIS::Keyboard("DWM", false, 1, 0){}
-	
-	/** @copydoc Object::setBuffered */
-	virtual void setBuffered(bool buffered){}
-
-	/** @copydoc Object::capture */
-	virtual void capture(){}
-
-	/** @copydoc Object::queryInterface */
-	virtual OIS::Interface* queryInterface(OIS::Interface::IType type) {return 0;}
-
-	/** @copydoc Object::_initialize */
-	virtual void _initialize(){}
-	
-	virtual bool isKeyDown( OIS::KeyCode key ) const{
-		return false;
-	}
-	
-	virtual const std::string& getAsString( OIS::KeyCode kc ){
-		static std::string defstr = "";
-		return defstr;
-	}
-	
-	virtual void copyKeyStates( char keys[256] ) const{
-	
-	}
-};
 
 
 static AndroidMultiTouch *g_multiTouch = 0;
@@ -82,16 +29,16 @@ static bool g_rootInit = false;
 static int g_xOffset = 0, g_yOffset = 0;
 static Ogre::AndroidArchiveFactory *g_archiveFactory = 0;
 static Ogre::map<Ogre::String,Ogre::String>::type g_resourceMap;
-static Ogre::SceneManager *sceneManager = 0;
-static Ogre::Camera*       m_pCamera = 0;
-static Ogre::Viewport*       m_pViewport = 0;
-static Ogre::SceneNode*      m_pCubeNode;
-static Ogre::Entity*       m_pCubeEntity;
-static OgreBites::SdkCameraMan *cameraMan = 0;
+static Ogre::SceneManager *mSceneManager = 0;
+static Ogre::Camera*       mCamera = 0;
+static Ogre::Viewport*       mViewport = 0;
+static Ogre::SceneNode*      mJaiquaNode;
+static Ogre::Entity*       mJaiquaEntity;
+static OgreBites::SdkCameraMan *mCameraMan = 0;
 
 
 static void injectTouchEvent(int pointerId, int action, float x, float y){
-  if(cameraMan){
+  if(mCameraMan){
 		OIS::MultiTouchState &state = g_multiTouch->getMultiTouchState(pointerId);
 		
 		switch(action){
@@ -128,13 +75,13 @@ static void injectTouchEvent(int pointerId, int action, float x, float y){
 			
 			switch(state.touchType){
 			case OIS::MT_Pressed:
-			      cameraMan->injectMouseDown(evt);
+			      mCameraMan->injectMouseDown(evt);
 				break;
 			case OIS::MT_Released:
-			      cameraMan->injectMouseUp(evt);
+			      mCameraMan->injectMouseUp(evt);
 				break;
 			case OIS::MT_Moved:
-			      cameraMan->injectMouseMove(evt);
+			      mCameraMan->injectMouseMove(evt);
 				break;
 			case OIS::MT_Cancelled:
 			
@@ -168,6 +115,50 @@ jboolean init(JNIEnv* env, jobject thiz)
 	LOGI("Adding resource locations");
 }
 
+static void init_scene_manager()
+{
+    mSceneManager = Ogre::Root::getSingletonPtr()->createSceneManager(Ogre::ST_GENERIC, "SceneManager");  
+    mSceneManager->setAmbientLight(Ogre::ColourValue(0.0f, 1.0f, 1.0f));
+}
+
+static void init_camera()
+{
+    mCamera = mSceneManager->createCamera("Camera");
+    mCamera->setNearClipDistance(1);
+    mCamera->setFarClipDistance(1000);
+    mCamera->setPosition(Ogre::Vector3(0, 60, 220));
+    mCamera->lookAt(Ogre::Vector3(0, 0, 0)); 
+    mViewport = getRenderWindow()->addViewport(mCamera);
+    mCamera->setAspectRatio(Ogre::Real(mViewport->getActualWidth()) / Ogre::Real(mViewport->getActualHeight())); 
+    mViewport->setCamera(mCamera);
+    
+}
+
+static void init_sdk_camera_manager()
+{
+    if(mCameraMan == 0) {
+        mCameraMan = new OgreBites::SdkCameraMan(mCamera);
+        mCameraMan->setStyle(OgreBites::CS_ORBIT);
+    }
+}
+
+static void create_lights()
+{
+    mSceneManager->createLight("Light1")->setPosition(-150 , -150 , 350);
+    mSceneManager->getLight("Light1")->setDirection(Ogre::Vector3(0, 0, 0));
+    mSceneManager->getLight("Light1")->setDiffuseColour(Ogre::ColourValue(1.0, 0.0, 0.0));
+}
+
+static void create_jaiqua_node()
+{
+    Ogre::MaterialPtr simpleMat = Ogre::MaterialManager::getSingletonPtr()->getByName("jaiqua");
+    mJaiquaEntity = mSceneManager->createEntity("jaiqua", "jaiqua.mesh");
+    mJaiquaEntity->setMaterial(simpleMat);
+    mJaiquaNode = mSceneManager->getRootSceneNode()->createChildSceneNode("JaiquaNode");
+    mJaiquaNode->attachObject(mJaiquaEntity);
+    mJaiquaNode->scale(Ogre::Vector3(2.0, 2.0, 2.0));
+}
+
 jboolean render(JNIEnv* env, jobject thiz, jint drawWidth, jint drawHeight, jboolean forceRedraw)
 {
 	// Check that a render window even exists
@@ -178,50 +169,21 @@ jboolean render(JNIEnv* env, jobject thiz, jint drawWidth, jint drawHeight, jboo
 	// Initialize the sample browser
 	if(g_multiTouch == 0){
 		g_multiTouch = new AndroidMultiTouch();
+        g_multiTouch->setWindowSize(drawWidth, drawHeight);
 	}
 	
 	if(g_keyboard == 0){
 		g_keyboard = new AndroidKeyboard();
 	}
 
-	if(sceneManager == 0) {
+	if(mSceneManager == 0) {
         Ogre::ResourceGroupManager::getSingleton().initialiseResourceGroup("Essential");
-        sceneManager = Ogre::Root::getSingletonPtr()->createSceneManager(Ogre::ST_GENERIC, "SceneManager");  
-        sceneManager->setAmbientLight(Ogre::ColourValue(0.0f, 0.0f, 1.0f));
-    
-        m_pCamera = sceneManager->createCamera("Camera");
-        m_pCamera->setNearClipDistance(1);
-        m_pCamera->setFarClipDistance(1000);
-        m_pCamera->setPosition(Ogre::Vector3(0, 60, -220));
-        m_pCamera->lookAt(Ogre::Vector3(0, 0, 0)); 
-        
-        m_pViewport = getRenderWindow()->addViewport(m_pCamera);
-        m_pCamera->setAspectRatio(Ogre::Real(m_pViewport->getActualWidth()) / Ogre::Real(m_pViewport->getActualHeight())); 
-
-    //m_pViewport->setBackgroundColour(Ogre::ColourValue(0.0f, 1.0f, 0.0f, 1.0f));
-        m_pViewport->setCamera(m_pCamera);
-
-        if(cameraMan == 0) {
-        cameraMan = new OgreBites::SdkCameraMan(m_pCamera);
-        cameraMan->setStyle(OgreBites::CS_ORBIT);
-        }
-
-        sceneManager->createLight("Light1")->setPosition(-150 , -150 , 350);
-        sceneManager->getLight("Light1")->setDirection(Ogre::Vector3(0, 0, 0));
-        sceneManager->getLight("Light1")->setDiffuseColour(Ogre::ColourValue(1.0, 0.0, 0.0));
-        Ogre::MaterialPtr material = Ogre::MaterialManager::getSingletonPtr()->getByName("bumpmap");
-        Ogre::String vertexProgram =  material.getPointer()->getTechnique(0)->getPass(0)->getVertexProgramName();
-        LOGI("VertexProgramName");
-        LOGI("====================================================================");
-        LOGI(vertexProgram.c_str());
-        LOGI("====================================================================");
-        Ogre::MaterialPtr simpleMat = Ogre::MaterialManager::getSingletonPtr()->getByName("bumpmap");
-        m_pCubeEntity = sceneManager->createEntity("Cube", "athene.mesh");
-        m_pCubeEntity->setMaterial(simpleMat);
-        m_pCubeNode = sceneManager->getRootSceneNode()->createChildSceneNode("CubeNode");
-        m_pCubeNode->attachObject(m_pCubeEntity);
-        cameraMan->setTarget(m_pCubeNode);
-
+        init_scene_manager();
+        init_camera();
+        init_sdk_camera_manager();
+        create_lights();
+        create_jaiqua_node();
+        mCameraMan->setTarget(mJaiquaNode);
     }
     
 	renderOneFrame();
@@ -247,6 +209,10 @@ void cleanup(JNIEnv* env)
 		destroyRenderWindow();
 	}
 		
+	if(mCameraMan) {
+        delete mCameraMan;
+    }
+    
 	LOGI("deleting ogre root");
 	if(g_rootInit){
 		destroyOgreRoot();

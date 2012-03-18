@@ -36,7 +36,6 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.opengl.GLES20;
 import android.view.SurfaceHolder;
 import android.view.SurfaceHolder.Callback;
 import android.view.SurfaceView;
@@ -461,9 +460,6 @@ public abstract class NvGLESActivity extends NvActivity {
 		System.out.println("eglSurface: " + eglSurface + ", err: " + egl.eglGetError());
 		egl.eglMakeCurrent(eglDisplay, eglSurface, eglSurface, eglContext);
 		System.out.println("eglMakeCurrent err: " + egl.eglGetError());
-		System.out.println("++++++++++++++++++++++++++++++++++");
-		System.out.println("eglContextVersion" + GLES20.glGetString(GLES20.GL_VERSION));
-		System.out.println("++++++++++++++++++++++++++++++++++");
 		return true;
 	}
 
