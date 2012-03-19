@@ -16,7 +16,17 @@ LOCAL_C_INCLUDES	:= $(OGRE_ROOT)/include \
 
 LOCAL_CFLAGS		+= -DFREEIMAGE_LIB=1 -DPNG_STATIC=1 -DOGRE_STATIC_LIB=1 -DUSE_RTSHADER_SYSTEM=1
 LOCAL_LDLIBS		:= -llog -lz 
-LOCAL_SRC_FILES 	:= acpwrapper.cpp ACPChunk.cpp ACPFile.cpp AndroidLogListener.cpp AndroidArchive.cpp ogrewrapper.cpp ogresamplebrowser.cpp  FileSystemLayerImpl_Android.cpp  nv_util/nv_util.cpp SdkCameraMan.h
+LOCAL_SRC_FILES 	:= acpwrapper.cpp \
+ 		ACPChunk.cpp \
+		ACPFile.cpp \
+		AndroidLogListener.cpp \
+		AndroidArchive.cpp \
+		ogrewrapper.cpp \
+		ogresamplebrowser.cpp  \
+		FileSystemLayerImpl_Android.cpp  \
+		nv_util/nv_util.cpp \
+		SdkCameraMan.h \
+		OgreAndroidBaseFramework.cpp
 
 LOCAL_SHARED_LIBRARIES := ois ogre
 

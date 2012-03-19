@@ -60,11 +60,11 @@ static void injectTouchEvent(int pointerId, int action, float x, float y){
 		
 		if(state.touchType != OIS::MT_None){
 			int last = state.X.abs;
-			state.X.abs = g_xOffset + (int)-x;
+			state.X.abs = g_xOffset + (int)x;
 			state.X.rel = state.X.abs - last;
 			
 			last = state.Y.abs;
-			state.Y.abs = g_yOffset + (int)-y;
+			state.Y.abs = g_yOffset + (int)y;
 			state.Y.rel = state.Y.abs - last;
 			
 			//last = state.Z.abs;
@@ -125,9 +125,9 @@ static void init_camera()
 {
     mCamera = mSceneManager->createCamera("Camera");
     mCamera->setNearClipDistance(1);
-    mCamera->setFarClipDistance(1000);
-    mCamera->setPosition(Ogre::Vector3(0, 60, 220));
-    mCamera->lookAt(Ogre::Vector3(0, 0, 0)); 
+    mCamera->setFarClipDistance(100);
+    mCamera->setPosition(Ogre::Vector3(0, 10, 0));
+    mCamera->lookAt(Ogre::Vector3(0, 0, 100)); 
     mViewport = getRenderWindow()->addViewport(mCamera);
     mCamera->setAspectRatio(Ogre::Real(mViewport->getActualWidth()) / Ogre::Real(mViewport->getActualHeight())); 
     mViewport->setCamera(mCamera);
@@ -138,26 +138,27 @@ static void init_sdk_camera_manager()
 {
     if(mCameraMan == 0) {
         mCameraMan = new OgreBites::SdkCameraMan(mCamera);
-        mCameraMan->setStyle(OgreBites::CS_ORBIT);
+     //   mCameraMan->setStyle(OgreBites::CS_ORBIT);
     }
 }
 
 static void create_lights()
 {
-    mSceneManager->createLight("Light1")->setPosition(-150 , -150 , 350);
-    mSceneManager->getLight("Light1")->setDirection(Ogre::Vector3(0, 0, 0));
+    mSceneManager->createLight("Light1")->setPosition(0 , 20 , 0);
+    mSceneManager->getLight("Light1")->setDirection(Ogre::Vector3(0, 20, 0));
     mSceneManager->getLight("Light1")->setDiffuseColour(Ogre::ColourValue(1.0, 0.0, 0.0));
 }
 
 static void create_jaiqua_node()
 {
-    Ogre::MaterialPtr simpleMat = Ogre::MaterialManager::getSingletonPtr()->getByName("jaiqua");
-    mJaiquaEntity = mSceneManager->createEntity("jaiqua", "jaiqua.mesh");
+    Ogre::MaterialPtr simpleMat = Ogre::MaterialManager::getSingletonPtr()->getByName("diffuseLighting");
+    mJaiquaEntity = mSceneManager->createEntity("jaiqua", "sibenik.mesh");
     mJaiquaEntity->setMaterial(simpleMat);
     mJaiquaNode = mSceneManager->getRootSceneNode()->createChildSceneNode("JaiquaNode");
     mJaiquaNode->attachObject(mJaiquaEntity);
-    mJaiquaNode->scale(Ogre::Vector3(2.0, 2.0, 2.0));
 }
+
+
 
 jboolean render(JNIEnv* env, jobject thiz, jint drawWidth, jint drawHeight, jboolean forceRedraw)
 {
@@ -183,7 +184,7 @@ jboolean render(JNIEnv* env, jobject thiz, jint drawWidth, jint drawHeight, jboo
         init_sdk_camera_manager();
         create_lights();
         create_jaiqua_node();
-        mCameraMan->setTarget(mJaiquaNode);
+        //mCameraMan->setTarget(mJaiquaNode);
     }
     
 	renderOneFrame();
