@@ -183,6 +183,7 @@ jboolean render(JNIEnv* env, jobject thiz, jint drawWidth, jint drawHeight, jboo
         init_sdk_camera_manager();
         create_lights();
         create_jaiqua_node();
+        mSceneManager->setSkyBox(true, "SkyBox", 500, true);
         mCameraMan->setTarget(mOgreHeadNode);
     }
     
