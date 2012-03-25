@@ -34,9 +34,10 @@ public class OgreSampleBrowserActivity extends NvGLES2Activity {
 		// Set up asset manager
 		ACPManager.getInstance().setAssets(getAssets(), "packs/");
 
-		// addResourceLocation("materials.mp3", "Essential");
-		addResourceLocation("/sdcard/ogre_media", "Essential");
-		// addResourceLocation("dragon.zip", "General");
+		addResourceLocation("/sdcard/ogre_media/textures", "Essential");
+		addResourceLocation("/sdcard/ogre_media/shaders", "Essential");
+		addResourceLocation("/sdcard/ogre_media/meshes", "Essential");
+		addResourceLocation("/sdcard/ogre_media/materials", "Essential");
 
 		// Call parent
 		super.onCreate(savedInstanceState);
