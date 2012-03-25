@@ -1,0 +1,85 @@
+vertex_program SimpleVert glsles
+{
+    source myvertexshader.glsles
+}
+
+fragment_program SimpleFrag glsles
+{
+    source myfragshader.glsles
+}
+
+vertex_program BumpMapVP glsles
+{
+    source Example_BumpMappingVp.glsles
+}
+
+fragment_program BumpMapFP glsles
+{
+    source Example_BumpMappingFp.glsles
+}
+
+material bumpmap
+{
+    technique
+  {
+    pass
+    {
+      vertex_program_ref BumpMapVP
+      {
+       
+	   
+	    param_named_auto worldViewProj worldviewproj_matrix
+	   
+	    param_named lightPosition float3 -150.0 -150.0 350.0
+	    
+
+      }
+     
+      fragment_program_ref BumpMapFP
+      {
+		param_named normalMap 0
+	        param_named lightDiffuse float4 1.0 1.0 1.0 1.0
+      }
+     
+      texture_unit
+      {
+         texture atheneNormalMap.png
+      }
+    }
+  }
+    
+}
+
+
+material RobotMaterial
+{
+  technique
+  {
+    pass
+    {
+      vertex_program_ref SimpleVert
+      {
+       
+      param_named_auto MVmatrix worldview_matrix
+      param_named_auto MVPmatrix worldviewproj_matrix
+      param_named_auto Normalmatrix inverse_transpose_worldview_matrix
+      param_named LightPosition float3 50.0 50.0 -150.0
+      
+
+      }
+     
+      fragment_program_ref SimpleFrag
+      {
+        param_named BrickColor float3 1.0 0.0 0.0
+        param_named MortarColor float3  0.0 1.0 0.0
+        param_named BrickSize float2   0.30 0.15
+        param_named BrickPct  float2   0.90 0.85 
+      }
+     
+      texture_unit
+      {
+       
+      }
+    }
+  }
+}

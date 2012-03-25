@@ -1,0 +1,73 @@
+vertex_program TexturedVP glsles
+{
+    source PassthroughVP.glsles
+}
+
+fragment_program TexturedFP glsles
+{
+    source PassthroughFP.glsles
+}
+
+vertex_program DiffuseVP glsles
+{
+    source DiffuseLightingVp.glsles
+}
+
+fragment_program DiffuseFP glsles
+{
+    source DiffuseLightingFp.glsles
+}
+
+material jaiqua
+{
+    technique
+  {
+    pass
+    {
+      vertex_program_ref TexturedVP
+      {
+      
+	    param_named_auto worldViewProj worldviewproj_matrix
+      }
+     
+      fragment_program_ref TexturedFP
+      {
+	    param_named textureMap 0
+      }
+     
+      texture_unit
+      {
+         texture blue_jaiqua.jpg
+      }
+    }
+  }
+    
+}
+
+material diffuseLighting
+{
+    technique
+  {
+    pass
+    {
+      vertex_program_ref DiffuseVP
+      {
+      
+	    param_named_auto worldViewProj worldviewproj_matrix
+	    param_named_auto inverseTransposeWV inverse_transpose_worldview_matrix
+	    param_named_auto lightPosition light_position_object_space 0
+      }
+     
+      fragment_program_ref DiffuseFP
+      {
+	   param_named textureMap 0
+	   param_named_auto lightDiffuse light_diffuse_colour 0
+      }
+      texture_unit
+      {
+         texture KAMEN-stup.jpg
+      }
+    }
+  }
+    
+}
