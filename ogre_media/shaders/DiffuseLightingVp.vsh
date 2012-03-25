@@ -1,6 +1,6 @@
 #version 100
-precision highp int;
-precision highp float;
+precision mediump int;
+precision mediump float;
 
 
 // parameters
@@ -14,8 +14,9 @@ attribute vec2 uv0;
 
 varying vec2 oUv0;
 
-varying vec3 oTSLightDir;
+varying vec4 lightPos;
 varying vec3 oNormal;
+varying vec4 oPosition;
 
 void main()
 {	
@@ -23,13 +24,9 @@ void main()
 	
 	oUv0 = uv0;
 
-	mat3 normalMatrix = mat3(vec3(1.0, 0.0, 0.0), 
-				 vec3(0.0, 1.0, 0.0),
-				 vec3(0.0, 0.0, 1.0));
-                                 
+	oNormal =  normal;
+        
+        oPosition = position;
 	
-	oNormal = normalMatrix * normal;
-	vec3 lightDir = lightPosition.xyz - (position * lightPosition.w).xyz;
-
-	oTSLightDir = lightDir;
+	lightPos = lightPosition;
 }

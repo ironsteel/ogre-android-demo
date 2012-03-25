@@ -9,7 +9,6 @@
 #include <OgreSceneManager.h>
 #include "SdkCameraMan.h"
 #include <android/log.h>
-
 #include "AndroidArchive.h"
 #include "AndroidMultiTouch.h"
 #include "AndroidKeyboard.h"
@@ -32,8 +31,8 @@ static Ogre::map<Ogre::String,Ogre::String>::type g_resourceMap;
 static Ogre::SceneManager *mSceneManager = 0;
 static Ogre::Camera*       mCamera = 0;
 static Ogre::Viewport*       mViewport = 0;
-static Ogre::SceneNode*      mJaiquaNode;
-static Ogre::Entity*       mJaiquaEntity;
+static Ogre::SceneNode*      mOgreHeadNode;
+static Ogre::Entity*       mOgreHeadEntity;
 static OgreBites::SdkCameraMan *mCameraMan = 0;
 
 
@@ -125,7 +124,7 @@ static void init_camera()
 {
     mCamera = mSceneManager->createCamera("Camera");
     mCamera->setNearClipDistance(1);
-    mCamera->setFarClipDistance(100);
+    mCamera->setFarClipDistance(1000);
     mCamera->setPosition(Ogre::Vector3(0, 10, 0));
     mCamera->lookAt(Ogre::Vector3(0, 0, 100)); 
     mViewport = getRenderWindow()->addViewport(mCamera);
@@ -138,24 +137,24 @@ static void init_sdk_camera_manager()
 {
     if(mCameraMan == 0) {
         mCameraMan = new OgreBites::SdkCameraMan(mCamera);
-     //   mCameraMan->setStyle(OgreBites::CS_ORBIT);
+        mCameraMan->setStyle(OgreBites::CS_ORBIT);
     }
 }
 
 static void create_lights()
 {
-    mSceneManager->createLight("Light1")->setPosition(0 , 20 , 0);
-    mSceneManager->getLight("Light1")->setDirection(Ogre::Vector3(0, 20, 0));
-    mSceneManager->getLight("Light1")->setDiffuseColour(Ogre::ColourValue(1.0, 0.0, 0.0));
+    mSceneManager->createLight("Light1")->setPosition(0 , 150 , 150);
+	mSceneManager->getLight("Light1")->setType(Ogre::Light::LT_POINT);
+    mSceneManager->getLight("Light1")->setDiffuseColour(Ogre::ColourValue(0.5, 0.5, 0.5));
 }
 
 static void create_jaiqua_node()
 {
     Ogre::MaterialPtr simpleMat = Ogre::MaterialManager::getSingletonPtr()->getByName("diffuseLighting");
-    mJaiquaEntity = mSceneManager->createEntity("jaiqua", "sibenik.mesh");
-    mJaiquaEntity->setMaterial(simpleMat);
-    mJaiquaNode = mSceneManager->getRootSceneNode()->createChildSceneNode("JaiquaNode");
-    mJaiquaNode->attachObject(mJaiquaEntity);
+    mOgreHeadEntity = mSceneManager->createEntity("ogreHead", "ogrehead.mesh");
+    mOgreHeadEntity->setMaterial(simpleMat);
+    mOgreHeadNode = mSceneManager->getRootSceneNode()->createChildSceneNode("ogreHeadNode");
+    mOgreHeadNode->attachObject(mOgreHeadEntity);
 }
 
 
@@ -184,7 +183,7 @@ jboolean render(JNIEnv* env, jobject thiz, jint drawWidth, jint drawHeight, jboo
         init_sdk_camera_manager();
         create_lights();
         create_jaiqua_node();
-        //mCameraMan->setTarget(mJaiquaNode);
+        mCameraMan->setTarget(mOgreHeadNode);
     }
     
 	renderOneFrame();

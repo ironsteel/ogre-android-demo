@@ -65,7 +65,7 @@ material diffuseLighting
       }
       texture_unit
       {
-         texture KAMEN-stup.jpg
+         texture GreenSkin.jpg
       }
     }
   }
