@@ -1,21 +1,21 @@
 vertex_program TexturedVP glsles
 {
-    source PassthroughVP.glsles
+    source PassthroughVP.vsh
 }
 
 fragment_program TexturedFP glsles
 {
-    source PassthroughFP.glsles
+    source PassthroughFP.fsh
 }
 
 vertex_program DiffuseVP glsles
 {
-    source DiffuseLightingVp.glsles
+    source DiffuseLightingVp.vsh
 }
 
 fragment_program DiffuseFP glsles
 {
-    source DiffuseLightingFp.glsles
+    source DiffuseLightingFp.fsh
 }
 
 material jaiqua

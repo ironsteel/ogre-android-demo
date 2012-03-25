@@ -1,21 +1,21 @@
 vertex_program SimpleVert glsles
 {
-    source myvertexshader.glsles
+    source myvertexshader.vsh
 }
 
 fragment_program SimpleFrag glsles
 {
-    source myfragshader.glsles
+    source myfragshader.fsh
 }
 
 vertex_program BumpMapVP glsles
 {
-    source Example_BumpMappingVp.glsles
+    source Example_BumpMappingVp.vsh
 }
 
 fragment_program BumpMapFP glsles
 {
-    source Example_BumpMappingFp.glsles
+    source Example_BumpMappingFp.fsh
 }
 
 material bumpmap
