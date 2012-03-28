@@ -1,1 +1,1 @@
-adb push ogre_media/ /mnt/sdcard/ogre_media/
+adb push ogre_media/ /sdcard/ogre_media/
