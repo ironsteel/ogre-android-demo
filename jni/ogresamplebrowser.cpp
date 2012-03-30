@@ -12,7 +12,7 @@
 #include "AndroidArchive.h"
 #include "AndroidMultiTouch.h"
 #include "AndroidKeyboard.h"
-
+#include "OgreAndroidBaseFramework.h"
 
 
 #define  LOG_TAG    "libogresamplebrowser"
@@ -95,14 +95,20 @@ static void injectKeyEvent(int action, int keyCode){
  
 jboolean init(JNIEnv* env, jobject thiz)
 {
-	bool ret = initOgreRoot();
-	if(!ret)
+	
+	new OgreAndroidBaseFramework();
+	
+	if(!OgreAndroidBaseFramework::getSingletonPtr()->initOgreRoot()) {
 		return JNI_FALSE;
+	} 
+//	bool ret = initOgreRoot();
+//	if(!ret)
+//		return JNI_FALSE;
 	
 	g_rootInit = true;
 
-	g_archiveFactory = OGRE_NEW Ogre::AndroidArchiveFactory(env);
-	Ogre::ArchiveManager::getSingleton().addArchiveFactory(g_archiveFactory);
+	
+	
 	Ogre::ResourceGroupManager::getSingleton().createResourceGroup("Essential");
 	
 	for(Ogre::map<Ogre::String,Ogre::String>::type::iterator i = g_resourceMap.begin(); i != g_resourceMap.end(); ++i)
@@ -110,6 +116,7 @@ jboolean init(JNIEnv* env, jobject thiz)
 		Ogre::ResourceGroupManager::getSingleton().addResourceLocation(i->first, "FileSystem", i->second);  
 	
     }
+	Ogre::ResourceGroupManager::getSingleton().initialiseResourceGroup("Essential");
 
 	LOGI("Adding resource locations");
 }
@@ -162,69 +169,75 @@ static void create_jaiqua_node()
 jboolean render(JNIEnv* env, jobject thiz, jint drawWidth, jint drawHeight, jboolean forceRedraw)
 {
 	// Check that a render window even exists
-	if(getRenderWindow() == 0){
-		initRenderWindow(0, drawWidth, drawHeight, 0);
-	}
+//	if(getRenderWindow() == 0){
+//		initRenderWindow(0, drawWidth, drawHeight, 0);
+//	}
 	
-	// Initialize the sample browser
-	if(g_multiTouch == 0){
-		g_multiTouch = new AndroidMultiTouch();
-        g_multiTouch->setWindowSize(drawWidth, drawHeight);
-	}
+//	// Initialize the sample browser
+//	if(g_multiTouch == 0){
+//		g_multiTouch = new AndroidMultiTouch();
+//        g_multiTouch->setWindowSize(drawWidth, drawHeight);
+//	}
 	
-	if(g_keyboard == 0){
-		g_keyboard = new AndroidKeyboard();
-	}
+//	if(g_keyboard == 0){
+//		g_keyboard = new AndroidKeyboard();
+//	}
 
-	if(mSceneManager == 0) {
-        Ogre::ResourceGroupManager::getSingleton().initialiseResourceGroup("Essential");
-        init_scene_manager();
-        init_camera();
-        init_sdk_camera_manager();
-        create_lights();
-        create_jaiqua_node();
-        mSceneManager->setSkyBox(true, "SkyBox", 500, true);
-        mCameraMan->setTarget(mOgreHeadNode);
-    }
+//	if(mSceneManager == 0) {
+//        Ogre::ResourceGroupManager::getSingleton().initialiseResourceGroup("Essential");
+//        init_scene_manager();
+//        init_camera();
+//        init_sdk_camera_manager();
+//        create_lights();
+//        create_jaiqua_node();
+//        mSceneManager->setSkyBox(true, "SkyBox", 500, true);
+//        mCameraMan->setTarget(mOgreHeadNode);
+//    }
     
-	renderOneFrame();
+//	renderOneFrame();
 	
-  
+	OgreAndroidBaseFramework::getSingletonPtr()->initRenderWindow(0, drawWidth, drawHeight, 0);
+	//OgreAndroidBaseFramework::getSingletonPtr()->setRenderWindowSize(drawWidth, drawHeight);
+
+	OgreAndroidBaseFramework::getSingletonPtr()->renderOneFrame();
+	
     return JNI_TRUE;
 }
 
 void cleanup(JNIEnv* env)
 {
 	
-	if(g_multiTouch){
-		delete g_multiTouch;
-		g_multiTouch = 0;
-	}
+//	if(g_multiTouch){
+//		delete g_multiTouch;
+//		g_multiTouch = 0;
+//	}
 	
-	if(g_keyboard){
-		delete g_keyboard;
-		g_keyboard = 0;
-	}
+//	if(g_keyboard){
+//		delete g_keyboard;
+//		g_keyboard = 0;
+//	}
 	
-	if(getRenderWindow()){
-		destroyRenderWindow();
-	}
+//	if(getRenderWindow()){
+//		destroyRenderWindow();
+//	}
 		
-	if(mCameraMan) {
-        delete mCameraMan;
-    }
+//	if(mCameraMan) {
+//        delete mCameraMan;
+//    }
     
-	LOGI("deleting ogre root");
-	if(g_rootInit){
-		destroyOgreRoot();
-		g_rootInit = false;
-	}
+//	LOGI("deleting ogre root");
+//	if(g_rootInit){
+//		destroyOgreRoot();
+//		g_rootInit = false;
+//	}
 	
 	LOGI("deleting archive stuff");
 	if(g_archiveFactory){
 		OGRE_DELETE g_archiveFactory; 
 		g_archiveFactory = 0;
 	}
+	
+	delete OgreAndroidBaseFramework::getSingletonPtr();
 }
 
 jboolean inputEvent(JNIEnv* env, jobject thiz, jint action, jfloat mx, jfloat my)

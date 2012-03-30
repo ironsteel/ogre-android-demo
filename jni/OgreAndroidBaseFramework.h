@@ -21,9 +21,10 @@
 #include <Ogre.h>
 #include <OgreGLES2Plugin.h>
 #include <OgreParticleFXPlugin.h>
+#include <OgreRenderTargetListener.h>
 #include "AndroidLogListener.h"
 
-class OgreAndroidBaseFramework
+class OgreAndroidBaseFramework : public Ogre::Singleton<OgreAndroidBaseFramework> , Ogre::RenderTargetListener
 {
 
 public:
@@ -32,15 +33,21 @@ public:
         mRenderWindow = NULL;
         mGles2Plugin = NULL;
         mPfxPlugin = NULL;
+		mLogManager = NULL;
+		mSceneManager = NULL;
         mLastTime = 0;
+		mWindowWidth = 0;
+		mWindowHeight = 0;
     }
     
     virtual ~OgreAndroidBaseFramework()
     {
         destroyRenderWindow();
+		
         if(mRoot) delete mRoot;
         if(mGles2Plugin) delete mGles2Plugin;
         if(mPfxPlugin) delete mPfxPlugin;
+		if(mLogManager) delete mLogManager;
         
     }
     
@@ -54,9 +61,33 @@ public:
             mRenderWindow = NULL; 
         }
     }
+	
+	Ogre::RenderWindow* getRenderWindow() 
+	{
+		return mRenderWindow;
+	}
     
     bool initOgreRoot();
+	
+	void initRenderWindow(unsigned int windowHandle, unsigned int width, unsigned int height, unsigned int contextHandle);
+	
+	void setRenderWindowSize(unsigned int width, unsigned int height) {
+		if(!mWindowWidth && !mWindowHeight) {
+			mRenderWindow->setFullscreen(false, width, height);
+		} 
+	}
+	
+	void renderOneFrame()
+	{
+		mRoot->renderOneFrame();
+	}
+	
+	virtual void preViewportUpdate(const Ogre::RenderTargetViewportEvent& evt);
+	
+	virtual void preRenderTargetUpdate(const Ogre::RenderTargetEvent& evt);
     
+	
+	static OgreAndroidBaseFramework* getSingletonPtr(void);
     
 private:
     Ogre::Root *mRoot;
@@ -64,9 +95,15 @@ private:
     Ogre::ParticleFXPlugin *mPfxPlugin;
     AndroidLogListener *mAndroidLogListener;
     Ogre::RenderWindow *mRenderWindow; // The main render window
+	Ogre::LogManager *mLogManager;
+	Ogre::SceneManager *mSceneManager;
+	Ogre::Camera *mCamera;
+	Ogre::Viewport *mViewport;
 
     Ogre::Timer mTimer;
     unsigned long mLastTime;
+	unsigned int mWindowWidth;
+	unsigned int mWindowHeight;
     
 };
 
