@@ -66,7 +66,7 @@ bool OgreAndroidBaseFramework::initOgreRoot()
 		addResourceLocation("/mnt/sdcard/ogre_media/materials", "Essential");
 		addResourceLocation("/mnt/sdcard/ogre_media/meshes", "Essential");
 		
-	
+	    mRoot->addFrameListener(this);
 	
 		return true;
 		
@@ -99,6 +99,31 @@ void OgreAndroidBaseFramework::createScene()
 	 mRazorNode = mSceneManager->getRootSceneNode()->createChildSceneNode("razorShip");
 	 mRazorNode->attachObject(mRazorEntity);
 	 mCameraMan->setTarget(mRazorNode);
+	 
+	 Ogre::ParticleSystem* thrusters = mSceneManager->createParticleSystem(25);
+	 thrusters->setMaterialName("Examples/Flare");
+	 thrusters->setDefaultDimensions(25, 25);
+	 
+	 // create two emitters for our thruster particle system
+	 for (unsigned int i = 0; i < 2; i++)
+	 {
+		 Ogre::ParticleEmitter* emitter = thrusters->addEmitter("Point");  // add a point emitter
+		 
+		 // set the emitter properties
+		 emitter->setAngle(Ogre::Degree(3));
+		 emitter->setTimeToLive(0.5);
+		 emitter->setEmissionRate(25);
+		 emitter->setParticleVelocity(25);
+		 emitter->setDirection(Ogre::Vector3::NEGATIVE_UNIT_Z);
+		 emitter->setColour(Ogre::ColourValue::Red, Ogre::ColourValue::Red);
+		 emitter->setPosition(Ogre::Vector3(i == 0 ? 5.7 : -18, 0, 0));
+	 }
+	 
+	 // attach our thruster particles to the rear of the ship
+	 mSceneManager->getRootSceneNode()->createChildSceneNode(Ogre::Vector3(0, 6.5, -67))->attachObject(thrusters);
+	 
+	 
+	 
 	 
 	 mSceneManager->setSkyBox(true, "SkyBox", 500, true);
 }

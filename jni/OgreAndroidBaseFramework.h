@@ -26,7 +26,7 @@
 #include "SdkCameraMan.h"
 #include "OISMultiTouch.h"
 
-class OgreAndroidBaseFramework : public Ogre::Singleton<OgreAndroidBaseFramework>
+class OgreAndroidBaseFramework : public Ogre::Singleton<OgreAndroidBaseFramework>, Ogre::FrameListener
 {
 
 public:
@@ -48,6 +48,7 @@ public:
         if(mGles2Plugin) delete mGles2Plugin;
         if(mPfxPlugin) delete mPfxPlugin;
 		if(mLogManager) delete mLogManager;
+		if(mCameraMan) delete mCameraMan;
         
     }
     
@@ -94,6 +95,8 @@ public:
 	}
 	
 	void createScene();
+	
+	
 	
 	
 	static OgreAndroidBaseFramework* getSingletonPtr(void);
