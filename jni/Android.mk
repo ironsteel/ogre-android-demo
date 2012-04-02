@@ -28,7 +28,7 @@ LOCAL_SRC_FILES 	:= acpwrapper.cpp \
 		SdkCameraMan.h \
 		OgreAndroidBaseFramework.cpp
 
-LOCAL_SHARED_LIBRARIES := ois ogre
+LOCAL_SHARED_LIBRARIES := ois ogre 
 
 include $(BUILD_SHARED_LIBRARY)
 

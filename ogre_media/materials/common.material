@@ -18,7 +18,7 @@ fragment_program DiffuseFP glsles
     source DiffuseLightingFp.fsh
 }
 
-material jaiqua
+material razor
 {
     technique
   {
@@ -37,7 +37,7 @@ material jaiqua
      
       texture_unit
       {
-         texture blue_jaiqua.jpg
+         texture razor-colormap.jpg
       }
     }
   }

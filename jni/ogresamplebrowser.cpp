@@ -6,10 +6,7 @@
 
 #include "ogrewrapper.h"
 #include <OIS.h>
-#include <OgreSceneManager.h>
-#include "SdkCameraMan.h"
 #include <android/log.h>
-#include "AndroidArchive.h"
 #include "AndroidMultiTouch.h"
 #include "AndroidKeyboard.h"
 #include "OgreAndroidBaseFramework.h"
@@ -23,21 +20,11 @@
 
 
 static AndroidMultiTouch *g_multiTouch = 0;
-static AndroidKeyboard *g_keyboard = 0;
-static bool g_rootInit = false;
 static int g_xOffset = 0, g_yOffset = 0;
-static Ogre::AndroidArchiveFactory *g_archiveFactory = 0;
-static Ogre::map<Ogre::String,Ogre::String>::type g_resourceMap;
-static Ogre::SceneManager *mSceneManager = 0;
-static Ogre::Camera*       mCamera = 0;
-static Ogre::Viewport*       mViewport = 0;
-static Ogre::SceneNode*      mOgreHeadNode;
-static Ogre::Entity*       mOgreHeadEntity;
-static OgreBites::SdkCameraMan *mCameraMan = 0;
 
 
 static void injectTouchEvent(int pointerId, int action, float x, float y){
-  if(mCameraMan){
+  
 		OIS::MultiTouchState &state = g_multiTouch->getMultiTouchState(pointerId);
 		
 		switch(action){
@@ -71,23 +58,23 @@ static void injectTouchEvent(int pointerId, int action, float x, float y){
 			state.Z.rel = 0;
 			
 			OIS::MultiTouchEvent evt(g_multiTouch, state);
-			
+			OgreAndroidBaseFramework* framework = OgreAndroidBaseFramework::getSingletonPtr();
 			switch(state.touchType){
 			case OIS::MT_Pressed:
-			      mCameraMan->injectMouseDown(evt);
+			      framework->injectTouchDown(evt);
 				break;
 			case OIS::MT_Released:
-			      mCameraMan->injectMouseUp(evt);
+			      framework->injectTouchUp(evt);
 				break;
 			case OIS::MT_Moved:
-			      mCameraMan->injectMouseMove(evt);
+			      framework->injectTouchMove(evt);
 				break;
 			case OIS::MT_Cancelled:
 			
 				break;
 			}
 		}
-	}
+	
 }
 
 static void injectKeyEvent(int action, int keyCode){
@@ -95,110 +82,24 @@ static void injectKeyEvent(int action, int keyCode){
  
 jboolean init(JNIEnv* env, jobject thiz)
 {
-	
 	new OgreAndroidBaseFramework();
 	
 	if(!OgreAndroidBaseFramework::getSingletonPtr()->initOgreRoot()) {
 		return JNI_FALSE;
 	} 
-//	bool ret = initOgreRoot();
-//	if(!ret)
-//		return JNI_FALSE;
 	
-	g_rootInit = true;
-
-	
-	
-	Ogre::ResourceGroupManager::getSingleton().createResourceGroup("Essential");
-	
-	for(Ogre::map<Ogre::String,Ogre::String>::type::iterator i = g_resourceMap.begin(); i != g_resourceMap.end(); ++i)
-	{
-		Ogre::ResourceGroupManager::getSingleton().addResourceLocation(i->first, "FileSystem", i->second);  
-	
-    }
-	Ogre::ResourceGroupManager::getSingleton().initialiseResourceGroup("Essential");
-
-	LOGI("Adding resource locations");
+	return true;
 }
-
-static void init_scene_manager()
-{
-    mSceneManager = Ogre::Root::getSingletonPtr()->createSceneManager(Ogre::ST_GENERIC, "SceneManager");  
-    mSceneManager->setAmbientLight(Ogre::ColourValue(0.0f, 1.0f, 1.0f));
-}
-
-static void init_camera()
-{
-    mCamera = mSceneManager->createCamera("Camera");
-    mCamera->setNearClipDistance(1);
-    mCamera->setFarClipDistance(1000);
-    mCamera->setPosition(Ogre::Vector3(0, 10, 0));
-    mCamera->lookAt(Ogre::Vector3(0, 0, 100)); 
-    mViewport = getRenderWindow()->addViewport(mCamera);
-    mCamera->setAspectRatio(Ogre::Real(mViewport->getActualWidth()) / Ogre::Real(mViewport->getActualHeight())); 
-    mViewport->setCamera(mCamera);
-    
-}
-
-static void init_sdk_camera_manager()
-{
-    if(mCameraMan == 0) {
-        mCameraMan = new OgreBites::SdkCameraMan(mCamera);
-        mCameraMan->setStyle(OgreBites::CS_ORBIT);
-    }
-}
-
-static void create_lights()
-{
-    mSceneManager->createLight("Light1")->setPosition(0 , 150 , 150);
-	mSceneManager->getLight("Light1")->setType(Ogre::Light::LT_POINT);
-    mSceneManager->getLight("Light1")->setDiffuseColour(Ogre::ColourValue(0.5, 0.5, 0.5));
-}
-
-static void create_jaiqua_node()
-{
-    Ogre::MaterialPtr simpleMat = Ogre::MaterialManager::getSingletonPtr()->getByName("diffuseLighting");
-    mOgreHeadEntity = mSceneManager->createEntity("ogreHead", "ogrehead.mesh");
-    mOgreHeadEntity->setMaterial(simpleMat);
-    mOgreHeadNode = mSceneManager->getRootSceneNode()->createChildSceneNode("ogreHeadNode");
-    mOgreHeadNode->attachObject(mOgreHeadEntity);
-}
-
-
 
 jboolean render(JNIEnv* env, jobject thiz, jint drawWidth, jint drawHeight, jboolean forceRedraw)
 {
-	// Check that a render window even exists
-//	if(getRenderWindow() == 0){
-//		initRenderWindow(0, drawWidth, drawHeight, 0);
-//	}
-	
-//	// Initialize the sample browser
-//	if(g_multiTouch == 0){
-//		g_multiTouch = new AndroidMultiTouch();
-//        g_multiTouch->setWindowSize(drawWidth, drawHeight);
-//	}
-	
-//	if(g_keyboard == 0){
-//		g_keyboard = new AndroidKeyboard();
-//	}
 
-//	if(mSceneManager == 0) {
-//        Ogre::ResourceGroupManager::getSingleton().initialiseResourceGroup("Essential");
-//        init_scene_manager();
-//        init_camera();
-//        init_sdk_camera_manager();
-//        create_lights();
-//        create_jaiqua_node();
-//        mSceneManager->setSkyBox(true, "SkyBox", 500, true);
-//        mCameraMan->setTarget(mOgreHeadNode);
-//    }
-    
-//	renderOneFrame();
-	
+	if(g_multiTouch == 0){
+		g_multiTouch = new AndroidMultiTouch();
+        g_multiTouch->setWindowSize(drawWidth, drawHeight);
+	}
+
 	OgreAndroidBaseFramework::getSingletonPtr()->initRenderWindow(0, drawWidth, drawHeight, 0);
-	//OgreAndroidBaseFramework::getSingletonPtr()->setRenderWindowSize(drawWidth, drawHeight);
-
 	OgreAndroidBaseFramework::getSingletonPtr()->renderOneFrame();
 	
     return JNI_TRUE;
@@ -207,36 +108,10 @@ jboolean render(JNIEnv* env, jobject thiz, jint drawWidth, jint drawHeight, jboo
 void cleanup(JNIEnv* env)
 {
 	
-//	if(g_multiTouch){
-//		delete g_multiTouch;
-//		g_multiTouch = 0;
-//	}
-	
-//	if(g_keyboard){
-//		delete g_keyboard;
-//		g_keyboard = 0;
-//	}
-	
-//	if(getRenderWindow()){
-//		destroyRenderWindow();
-//	}
-		
-//	if(mCameraMan) {
-//        delete mCameraMan;
-//    }
-    
-//	LOGI("deleting ogre root");
-//	if(g_rootInit){
-//		destroyOgreRoot();
-//		g_rootInit = false;
-//	}
-	
-	LOGI("deleting archive stuff");
-	if(g_archiveFactory){
-		OGRE_DELETE g_archiveFactory; 
-		g_archiveFactory = 0;
+	if(g_multiTouch){
+		delete g_multiTouch;
+		g_multiTouch = 0;
 	}
-	
 	delete OgreAndroidBaseFramework::getSingletonPtr();
 }
 
@@ -260,13 +135,6 @@ void setOffsets(JNIEnv* env, jobject thiz, jint x, jint y)
 
 void addResourceLocation(JNIEnv *env, jobject thiz, jstring name, jstring group)
 {
-	LOGI("Adding resource location");
-	
-	const char *str1 = env->GetStringUTFChars(name, 0);
-	const char *str2 = env->GetStringUTFChars(group, 0);
-	g_resourceMap[str1] = str2;
-	env->ReleaseStringUTFChars(name, str1);
-	env->ReleaseStringUTFChars(group, str2);
 }
 
 jint JNI_OnLoad(JavaVM* vm, void* reserved)

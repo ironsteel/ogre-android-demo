@@ -6,6 +6,8 @@ import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
+import android.view.Window;
+import android.view.WindowManager;
 
 import com.nvidia.devtech.NvGLES2Activity;
 
@@ -34,10 +36,10 @@ public class OgreSampleBrowserActivity extends NvGLES2Activity {
 		// Set up asset manager
 		ACPManager.getInstance().setAssets(getAssets(), "packs/");
 
-		addResourceLocation("/sdcard/ogre_media/textures", "Essential");
-		addResourceLocation("/sdcard/ogre_media/shaders", "Essential");
-		addResourceLocation("/sdcard/ogre_media/meshes", "Essential");
-		addResourceLocation("/sdcard/ogre_media/materials", "Essential");
+		this.requestWindowFeature(Window.FEATURE_NO_TITLE);
+
+		this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
+				WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
 		// Call parent
 		super.onCreate(savedInstanceState);

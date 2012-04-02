@@ -29,6 +29,7 @@
 #define __SdkCameraMan_H__
 
 #include "Ogre.h"
+#include "OIS.h"
 #include <limits>
 
 namespace OgreBites

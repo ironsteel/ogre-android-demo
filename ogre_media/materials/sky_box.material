@@ -30,7 +30,7 @@ material SkyBox
 
 			texture_unit
 			{
-				cubic_texture early_morning.jpg separateUV
+				cubic_texture stevecube.jpg separateUV
 				tex_address_mode clamp
 			}
 		}

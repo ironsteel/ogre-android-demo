@@ -23,8 +23,10 @@
 #include <OgreParticleFXPlugin.h>
 #include <OgreRenderTargetListener.h>
 #include "AndroidLogListener.h"
+#include "SdkCameraMan.h"
+#include "OISMultiTouch.h"
 
-class OgreAndroidBaseFramework : public Ogre::Singleton<OgreAndroidBaseFramework> , Ogre::RenderTargetListener
+class OgreAndroidBaseFramework : public Ogre::Singleton<OgreAndroidBaseFramework>
 {
 
 public:
@@ -36,8 +38,6 @@ public:
 		mLogManager = NULL;
 		mSceneManager = NULL;
         mLastTime = 0;
-		mWindowWidth = 0;
-		mWindowHeight = 0;
     }
     
     virtual ~OgreAndroidBaseFramework()
@@ -57,7 +57,6 @@ public:
         if(mRenderWindow) {
             mRenderWindow->destroy();
             Ogre::Root::getSingleton().detachRenderTarget(mRenderWindow);
-            
             mRenderWindow = NULL; 
         }
     }
@@ -71,21 +70,31 @@ public:
 	
 	void initRenderWindow(unsigned int windowHandle, unsigned int width, unsigned int height, unsigned int contextHandle);
 	
-	void setRenderWindowSize(unsigned int width, unsigned int height) {
-		if(!mWindowWidth && !mWindowHeight) {
-			mRenderWindow->setFullscreen(false, width, height);
-		} 
+	
+	void addResourceLocation(Ogre::String path, Ogre::String resourceGroup);
+	
+	void injectTouchUp(OIS::MultiTouchEvent &evt);
+	void injectTouchDown(OIS::MultiTouchEvent &evt);
+	void injectTouchMove(OIS::MultiTouchEvent &evt);
+	
+	void createResourceGroup(Ogre::String resourceGroup) 
+	{
+		Ogre::ResourceGroupManager::getSingletonPtr()->createResourceGroup(resourceGroup);
 	}
+	
+	void initializeResourceGroups();
 	
 	void renderOneFrame()
 	{
+		if(!mSceneManager) {
+			initializeResourceGroups();
+			createScene();
+		}
 		mRoot->renderOneFrame();
 	}
 	
-	virtual void preViewportUpdate(const Ogre::RenderTargetViewportEvent& evt);
+	void createScene();
 	
-	virtual void preRenderTargetUpdate(const Ogre::RenderTargetEvent& evt);
-    
 	
 	static OgreAndroidBaseFramework* getSingletonPtr(void);
     
@@ -99,12 +108,17 @@ private:
 	Ogre::SceneManager *mSceneManager;
 	Ogre::Camera *mCamera;
 	Ogre::Viewport *mViewport;
-
+	OgreBites::SdkCameraMan *mCameraMan;
+	
+	Ogre::Entity *mRazorEntity;
+	Ogre::SceneNode *mRazorNode;
+	
+	Ogre::map<Ogre::String,Ogre::String>::type mResourceMap;
+	
     Ogre::Timer mTimer;
+	
+	
     unsigned long mLastTime;
-	unsigned int mWindowWidth;
-	unsigned int mWindowHeight;
-    
 };
 
 #endif // OGREANDROIDBASEFRAMEWORK_H

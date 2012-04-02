@@ -59,14 +59,15 @@ bool OgreAndroidBaseFramework::initOgreRoot()
 		mRoot->initialise(false);
 		
 		mLastTime = mTimer.getMilliseconds();
-
 		
-//		initRenderWindow(0, mWindowWidth, mWindowHeight, 0);
+		createResourceGroup("Essential");
+		addResourceLocation("/mnt/sdcard/ogre_media/textures", "Essential");
+		addResourceLocation("/mnt/sdcard/ogre_media/shaders", "Essential");
+		addResourceLocation("/mnt/sdcard/ogre_media/materials", "Essential");
+		addResourceLocation("/mnt/sdcard/ogre_media/meshes", "Essential");
+		
 	
-		
-		
-		
-		
+	
 		return true;
 		
 	} catch(Ogre::Exception &e) {
@@ -74,6 +75,76 @@ bool OgreAndroidBaseFramework::initOgreRoot()
 	
 	return false;
 }
+
+
+void OgreAndroidBaseFramework::createScene()
+{
+	 mSceneManager = mRoot->createSceneManager(Ogre::ST_GENERIC);
+	 Ogre::TextureManager::getSingletonPtr()->setDefaultNumMipmaps(3);
+	 mCamera = mSceneManager->createCamera("Camera");
+	 mCamera->setNearClipDistance(1);
+	 mCamera->setFarClipDistance(1000);
+	 mCamera->setPosition(Ogre::Vector3(0, 10, 0));
+	 mCamera->lookAt(Ogre::Vector3(0, 0, 100)); 
+	 mViewport = mRenderWindow->addViewport(mCamera);
+	 mCamera->setAspectRatio(Ogre::Real(mViewport->getActualWidth()) / Ogre::Real(mViewport->getActualHeight())); 
+	 mViewport->setCamera(mCamera);
+	 
+	 mCameraMan = new OgreBites::SdkCameraMan(mCamera);
+	 mCameraMan->setStyle(OgreBites::CS_ORBIT);
+	 
+	 mRazorEntity = mSceneManager->createEntity("razor", "razor.mesh");
+	 
+	 mRazorEntity->setMaterial(Ogre::MaterialManager::getSingletonPtr()->getByName("razor"));
+	 mRazorNode = mSceneManager->getRootSceneNode()->createChildSceneNode("razorShip");
+	 mRazorNode->attachObject(mRazorEntity);
+	 mCameraMan->setTarget(mRazorNode);
+	 
+	 mSceneManager->setSkyBox(true, "SkyBox", 500, true);
+}
+
+
+
+void OgreAndroidBaseFramework::initializeResourceGroups()
+{
+	
+	for(Ogre::map<Ogre::String,Ogre::String>::type::iterator i = mResourceMap.begin(); i != mResourceMap.end(); ++i)
+	{
+		Ogre::ResourceGroupManager::getSingleton().addResourceLocation(i->first, "FileSystem", i->second);  
+    }
+	
+	Ogre::ResourceGroupManager::getSingletonPtr()->initialiseAllResourceGroups();
+	
+}
+
+void OgreAndroidBaseFramework::addResourceLocation(Ogre::String path, Ogre::String resourceGroup)
+{
+	mResourceMap[path] = resourceGroup;
+}
+
+void OgreAndroidBaseFramework::injectTouchDown(OIS::MultiTouchEvent &evt)
+{
+	if(mCameraMan) {
+		mCameraMan->injectMouseDown(evt);
+	}
+}
+
+void OgreAndroidBaseFramework::injectTouchUp(OIS::MultiTouchEvent &evt)
+{
+	if(mCameraMan) {
+		mCameraMan->injectMouseUp(evt);
+	}
+}
+
+void OgreAndroidBaseFramework::injectTouchMove(OIS::MultiTouchEvent &evt)
+{
+	if(mCameraMan) {
+		mCameraMan->injectMouseMove(evt);
+	}
+}
+
+
+
 
 void OgreAndroidBaseFramework::initRenderWindow(unsigned int windowHandle, unsigned int width, unsigned int height, unsigned int contextHandle)
 {
@@ -83,27 +154,6 @@ void OgreAndroidBaseFramework::initRenderWindow(unsigned int windowHandle, unsig
 		params["externalGLContext"] = Ogre::StringConverter::toString(contextHandle);
 		
 		mRenderWindow = mRoot->createRenderWindow("OgreAndroidPrimary", width, height, true, &params);
-		mRenderWindow->addListener(this);
 	}
 }
 
-void OgreAndroidBaseFramework::preViewportUpdate(const Ogre::RenderTargetViewportEvent &evt)
-{
-	
-}
-
-void OgreAndroidBaseFramework::preRenderTargetUpdate(const Ogre::RenderTargetEvent &evt)
-{
-	mSceneManager = mRoot->createSceneManager(Ogre::ST_GENERIC);
-	
-	mCamera = mSceneManager->createCamera("Camera");
-    mCamera->setNearClipDistance(1);
-    mCamera->setFarClipDistance(1000);
-    mCamera->setPosition(Ogre::Vector3(0, 10, 0));
-    mCamera->lookAt(Ogre::Vector3(0, 0, 100)); 
-	mViewport = getRenderWindow()->addViewport(mCamera);
-	mCamera->setAspectRatio(Ogre::Real(mWindowWidth) / Ogre::Real(mWindowHeight)); 
-    mViewport->setCamera(mCamera);
-	mViewport->setBackgroundColour(Ogre::ColourValue(0.0, 1.0, 0.0));
-		
-}
