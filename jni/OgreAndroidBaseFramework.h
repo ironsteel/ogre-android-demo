@@ -25,6 +25,9 @@
 #include "AndroidLogListener.h"
 #include "SdkCameraMan.h"
 #include "OISMultiTouch.h"
+#include "SinbadCharacterController.h"
+#include "AndroidKeyboard.h"
+#include "SdkTrays.h"
 
 class OgreAndroidBaseFramework : public Ogre::Singleton<OgreAndroidBaseFramework>, Ogre::FrameListener
 {
@@ -37,6 +40,9 @@ public:
         mPfxPlugin = NULL;
 		mLogManager = NULL;
 		mSceneManager = NULL;
+		mKeyboard = NULL;
+		mCharacter = NULL;
+		mTrays = NULL;
         mLastTime = 0;
     }
     
@@ -49,7 +55,7 @@ public:
         if(mPfxPlugin) delete mPfxPlugin;
 		if(mLogManager) delete mLogManager;
 		if(mCameraMan) delete mCameraMan;
-        
+		if(mKeyboard) delete mKeyboard;
     }
     
     void destroyRenderWindow()
@@ -96,7 +102,11 @@ public:
 	
 	void createScene();
 	
-	
+	bool frameRenderingQueued(const FrameEvent &evt) 
+	{
+		if(mCharacter)
+			mCharacter->addTime(evt.timeSinceLastFrame);
+	}
 	
 	
 	static OgreAndroidBaseFramework* getSingletonPtr(void);
@@ -112,9 +122,11 @@ private:
 	Ogre::Camera *mCamera;
 	Ogre::Viewport *mViewport;
 	OgreBites::SdkCameraMan *mCameraMan;
-	
+	SinbadCharacterController *mCharacter;
 	Ogre::Entity *mRazorEntity;
 	Ogre::SceneNode *mRazorNode;
+	AndroidKeyboard *mKeyboard;
+	OgreBites::SdkTrayManager *mTrays;
 	
 	Ogre::map<Ogre::String,Ogre::String>::type mResourceMap;
 	

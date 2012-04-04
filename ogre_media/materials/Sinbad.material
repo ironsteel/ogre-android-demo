@@ -1,0 +1,297 @@
+vertex_program TexturedVP glsles
+{
+    source PassthroughVP.vsh
+}
+
+fragment_program TexturedFP glsles
+{
+    source PassthroughFP.fsh
+}
+
+
+
+material Sinbad/Body
+{
+	
+	technique
+	{
+		pass
+		{
+			ambient 0.75 0.75 0.75
+			diffuse 1 1 1 1
+			vertex_program_ref TexturedVP
+    	         	{
+	            		param_named_auto worldViewProj worldviewproj_matrix
+      		 	}
+     
+      		 	fragment_program_ref TexturedFP
+      		 	{
+	    	     		param_named textureMap 0
+      		 	}
+			texture_unit
+			{
+				texture sinbad_body.png
+			}
+		}
+	}
+}
+material Sinbad/Gold
+{
+	
+	technique
+	{
+		pass
+		{
+			ambient 0.75 0.75 0.75
+			diffuse 0.8 0.8 0.8 1
+			specular 0.3 0.3 0.2 5.5
+			vertex_program_ref TexturedVP
+    	         	{
+	            		param_named_auto worldViewProj worldviewproj_matrix
+      		 	}
+     
+      		 	fragment_program_ref TexturedFP
+      		 	{
+	    	     		param_named textureMap 0
+      		 	}
+			texture_unit
+			{
+				texture sinbad_clothes.png
+			}
+		}
+	}
+}
+material Sinbad/Sheaths
+{
+	
+	technique
+	{
+		pass
+		{
+			ambient 0.75 0.75 0.75
+			diffuse 1 1 1 1
+			specular 0.2 0.1 0.1 1.0 50.0
+			vertex_program_ref TexturedVP
+    	         	{
+	            		param_named_auto worldViewProj worldviewproj_matrix
+      		 	}
+     
+      		 	fragment_program_ref TexturedFP
+      		 	{
+	    	     		param_named textureMap 0
+      		 	}
+			texture_unit
+			{
+				texture sinbad_sword.png
+			}
+		}
+	}
+}
+material Sinbad/Clothes
+{
+	
+	technique
+	{
+		pass
+		{
+			ambient 0.75 0.75 0.75
+			diffuse 1 1 1 1
+			specular 0.05 0.05 0.05 12.5
+			vertex_program_ref TexturedVP
+    	         	{
+	            		param_named_auto worldViewProj worldviewproj_matrix
+      		 	}
+     
+      		 	fragment_program_ref TexturedFP
+      		 	{
+	    	     		param_named textureMap 0
+      		 	}
+			texture_unit
+			{
+				texture sinbad_clothes.png
+			}
+		}
+	}
+}
+material Sinbad/Teeth
+{
+	
+	technique
+	{
+		pass
+		{
+			ambient 0.75 0.75 0.75
+			diffuse 1 1 1 1
+			specular 0.25 0.25 0.25 10.5
+			vertex_program_ref TexturedVP
+    	         	{
+	            		param_named_auto worldViewProj worldviewproj_matrix
+      		 	}
+     
+      		 	fragment_program_ref TexturedFP
+      		 	{
+	    	     		param_named textureMap 0
+      		 	}
+			texture_unit
+			{
+				texture sinbad_body.png
+			}
+		}
+	}
+}
+material Sinbad/Eyes
+{
+	
+	technique
+	{
+		pass
+		{
+			ambient 0.75 0.75 0.75
+			diffuse 1 1 1 1
+			specular 0.75 0.75 0.75 55.5
+			vertex_program_ref TexturedVP
+    	         	{
+	            		param_named_auto worldViewProj worldviewproj_matrix
+      		 	}
+     
+      		 	fragment_program_ref TexturedFP
+      		 	{
+	    	     		param_named textureMap 0
+      		 	}
+			texture_unit
+			{
+				texture sinbad_body.png
+			}
+		}
+	}
+}
+material Sinbad/Spikes
+{
+	
+	technique
+	{
+		pass
+		{
+			ambient 0.75 0.75 0.75
+			diffuse 1 1 1 1
+			specular 0.75 0.75 0.75 20.5
+			vertex_program_ref TexturedVP
+    	         	{
+	            		param_named_auto worldViewProj worldviewproj_matrix
+      		 	}
+     
+      		 	fragment_program_ref TexturedFP
+      		 	{
+	    	     		param_named textureMap 0
+      		 	}
+			texture_unit
+			{
+				texture sinbad_clothes.png
+			}
+		}
+	}
+}
+material Sinbad/Blade
+{
+	
+	technique
+	{
+		pass
+		{
+			ambient 0.75 0.75 0.75
+			diffuse 1 1 1 1
+			specular 1 1 1 10.5
+			vertex_program_ref TexturedVP
+    	         	{
+	            		param_named_auto worldViewProj worldviewproj_matrix
+      		 	}
+     
+      		 	fragment_program_ref TexturedFP
+      		 	{
+	    	     		param_named textureMap 0
+      		 	}
+			texture_unit
+			{
+				texture sinbad_sword.png
+			}
+		}
+	}
+}
+material Sinbad/Ruby
+{
+	
+	technique
+	{
+		pass
+		{
+			ambient 0.75 0.75 0.75
+			diffuse 1 1 1 1
+			specular 0.75 0.75 0.75 20.5
+			vertex_program_ref TexturedVP
+    	         	{
+	            		param_named_auto worldViewProj worldviewproj_matrix
+      		 	}
+     
+      		 	fragment_program_ref TexturedFP
+      		 	{
+	    	     		param_named textureMap 0
+      		 	}
+			texture_unit
+			{
+				texture sinbad_sword.png
+			}
+		}
+	}
+}
+material Sinbad/Hilt
+{
+	
+	technique
+	{
+		pass
+		{
+			ambient 0.75 0.75 0.75
+			diffuse 0.8 0.8 0.8 1
+			specular 0.3 0.3 0.2 5.5
+			vertex_program_ref TexturedVP
+    	         	{
+	            		param_named_auto worldViewProj worldviewproj_matrix
+      		 	}
+     
+      		 	fragment_program_ref TexturedFP
+      		 	{
+	    	     		param_named textureMap 0
+      		 	}
+			texture_unit
+			{
+				texture sinbad_sword.png
+			}
+		}
+	}
+}
+material Sinbad/Handle
+{
+	
+	technique
+	{
+		pass
+		{
+			ambient 0.75 0.75 0.75
+			diffuse 1 1 1 1
+			specular 0.05 0.05 0.05 12.5
+			vertex_program_ref TexturedVP
+    	         	{
+	            		param_named_auto worldViewProj worldviewproj_matrix
+      		 	}
+     
+      		 	fragment_program_ref TexturedFP
+      		 	{
+	    	     		param_named textureMap 0
+      		 	}
+			texture_unit
+			{
+				texture sinbad_sword.png
+			}
+		}
+	}
+}

@@ -26,7 +26,8 @@ LOCAL_SRC_FILES 	:= acpwrapper.cpp \
 		FileSystemLayerImpl_Android.cpp  \
 		nv_util/nv_util.cpp \
 		SdkCameraMan.h \
-		OgreAndroidBaseFramework.cpp
+		OgreAndroidBaseFramework.cpp \
+                SinbadCharacterController.h
 
 LOCAL_SHARED_LIBRARIES := ois ogre 
 

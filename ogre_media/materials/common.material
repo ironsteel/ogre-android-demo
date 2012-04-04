@@ -100,3 +100,58 @@ material Examples/Flare
 		}
 	}
 }
+
+material Examples/Rockwall
+{
+	technique
+	{
+		pass
+		{
+			vertex_program_ref TexturedVP
+    	         	{
+	            		param_named_auto worldViewProj worldviewproj_matrix
+      		 	}
+     
+      		 	fragment_program_ref TexturedFP
+      		 	{
+	    	     		param_named textureMap 0
+      		 	}
+			
+			texture_unit
+			{
+				texture rockwall.png
+				filtering none
+			}
+		}
+	}
+}
+material Examples/LightRibbonTrail
+{
+	technique
+	{
+		pass
+		{
+			lighting off
+			scene_blend add
+			depth_write off
+			diffuse vertexcolour
+
+			vertex_program_ref TexturedVP
+    	         	{
+	            		param_named_auto worldViewProj worldviewproj_matrix
+      		 	}
+     
+      		 	fragment_program_ref TexturedFP
+      		 	{
+	    	     		param_named textureMap 0
+      		 	}
+
+			texture_unit
+			{
+				texture ribbonband.png 
+				tex_address_mode clamp
+				filtering none
+			}
+		}
+	}
+}

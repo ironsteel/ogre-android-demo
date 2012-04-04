@@ -61,13 +61,16 @@ bool OgreAndroidBaseFramework::initOgreRoot()
 		mLastTime = mTimer.getMilliseconds();
 		
 		createResourceGroup("Essential");
-		addResourceLocation("/mnt/sdcard/ogre_media/textures", "Essential");
-		addResourceLocation("/mnt/sdcard/ogre_media/shaders", "Essential");
-		addResourceLocation("/mnt/sdcard/ogre_media/materials", "Essential");
-		addResourceLocation("/mnt/sdcard/ogre_media/meshes", "Essential");
+		addResourceLocation("/sdcard/ogre_media/textures", "Essential");
+		addResourceLocation("/sdcard/ogre_media/shaders", "Essential");
+		addResourceLocation("/sdcard/ogre_media/materials", "Essential");
+		addResourceLocation("/sdcard/ogre_media/meshes", "Essential");
+//		addResourceLocation("/sdcard/ogre_media/trays", "Essential");
+//		addResourceLocation("/sdcard/ogre_media/font-defs", "Essential");
+//		addResourceLocation("/sdcard/ogre_media/trays-materials", "Essential");
 		
 	    mRoot->addFrameListener(this);
-	
+		mKeyboard = new AndroidKeyboard();
 		return true;
 		
 	} catch(Ogre::Exception &e) {
@@ -80,52 +83,32 @@ bool OgreAndroidBaseFramework::initOgreRoot()
 void OgreAndroidBaseFramework::createScene()
 {
 	 mSceneManager = mRoot->createSceneManager(Ogre::ST_GENERIC);
-	 Ogre::TextureManager::getSingletonPtr()->setDefaultNumMipmaps(3);
+	 Ogre::TextureManager::getSingletonPtr()->setDefaultNumMipmaps(0);
 	 mCamera = mSceneManager->createCamera("Camera");
-	 mCamera->setNearClipDistance(1);
-	 mCamera->setFarClipDistance(1000);
-	 mCamera->setPosition(Ogre::Vector3(0, 10, 0));
-	 mCamera->lookAt(Ogre::Vector3(0, 0, 100)); 
 	 mViewport = mRenderWindow->addViewport(mCamera);
 	 mCamera->setAspectRatio(Ogre::Real(mViewport->getActualWidth()) / Ogre::Real(mViewport->getActualHeight())); 
 	 mViewport->setCamera(mCamera);
 	 
+	 
+	 
 	 mCameraMan = new OgreBites::SdkCameraMan(mCamera);
-	 mCameraMan->setStyle(OgreBites::CS_ORBIT);
-	 
-	 mRazorEntity = mSceneManager->createEntity("razor", "razor.mesh");
-	 
-	 mRazorEntity->setMaterial(Ogre::MaterialManager::getSingletonPtr()->getByName("razor"));
-	 mRazorNode = mSceneManager->getRootSceneNode()->createChildSceneNode("razorShip");
-	 mRazorNode->attachObject(mRazorEntity);
-	 mCameraMan->setTarget(mRazorNode);
-	 
-	 Ogre::ParticleSystem* thrusters = mSceneManager->createParticleSystem(25);
-	 thrusters->setMaterialName("Examples/Flare");
-	 thrusters->setDefaultDimensions(25, 25);
-	 
-	 // create two emitters for our thruster particle system
-	 for (unsigned int i = 0; i < 2; i++)
-	 {
-		 Ogre::ParticleEmitter* emitter = thrusters->addEmitter("Point");  // add a point emitter
-		 
-		 // set the emitter properties
-		 emitter->setAngle(Ogre::Degree(3));
-		 emitter->setTimeToLive(0.5);
-		 emitter->setEmissionRate(25);
-		 emitter->setParticleVelocity(25);
-		 emitter->setDirection(Ogre::Vector3::NEGATIVE_UNIT_Z);
-		 emitter->setColour(Ogre::ColourValue::Red, Ogre::ColourValue::Red);
-		 emitter->setPosition(Ogre::Vector3(i == 0 ? 5.7 : -18, 0, 0));
-	 }
-	 
-	 // attach our thruster particles to the rear of the ship
-	 mSceneManager->getRootSceneNode()->createChildSceneNode(Ogre::Vector3(0, 6.5, -67))->attachObject(thrusters);
+	 mCameraMan->setStyle(OgreBites::CS_MANUAL);
 	 
 	 
+	 Ogre::MeshManager::getSingleton().createPlane("floor", Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME,
+	                                               Ogre::Plane(Ogre::Vector3::UNIT_Y, 0), 100, 100, 10, 10, true, 1, 10, 10, Ogre::Vector3::UNIT_Z);
 	 
+	 Ogre::Entity* floor = mSceneManager->createEntity("Floor", "floor");
+	 floor->setMaterialName("Examples/Rockwall");
+	
 	 
-	 mSceneManager->setSkyBox(true, "SkyBox", 500, true);
+	 mSceneManager->getRootSceneNode()->attachObject(floor);
+	 mCharacter = new SinbadCharacterController(mCamera);
+//	 mTrays = new OgreBites::SdkTrayManager("SdkTrays", mRenderWindow, NULL, NULL);
+//	 mTrays->showLogo(OgreBites::TL_BOTTOMLEFT);
+//	 mTrays->createDecorWidget(OgreBites::TL_TOPRIGHT, "Decor", "SdkTrays/Logo");
+	 
+	 mSceneManager->setSkyBox(true, "SkyBox", 20, true);
 }
 
 
@@ -149,22 +132,36 @@ void OgreAndroidBaseFramework::addResourceLocation(Ogre::String path, Ogre::Stri
 
 void OgreAndroidBaseFramework::injectTouchDown(OIS::MultiTouchEvent &evt)
 {
-	if(mCameraMan) {
-		mCameraMan->injectMouseDown(evt);
+//	if(mCameraMan) {
+//		mCameraMan->injectMouseDown(evt);
+//	}
+	if(mCharacter) {
+		OIS::KeyEvent evtKey(mKeyboard, OIS::KC_E, 0);
+		mCharacter->injectKeyDown(evtKey);
+		mCharacter->injectMouseDown(evt);
 	}
 }
 
 void OgreAndroidBaseFramework::injectTouchUp(OIS::MultiTouchEvent &evt)
 {
-	if(mCameraMan) {
-		mCameraMan->injectMouseUp(evt);
+//	if(mCameraMan) {
+//		mCameraMan->injectMouseUp(evt);
+//	}
+	if(mCharacter) {
+		OIS::KeyEvent evtKey(mKeyboard, OIS::KC_E, 0);
+		mCharacter->injectKeyUp(evtKey);
 	}
+
 }
 
 void OgreAndroidBaseFramework::injectTouchMove(OIS::MultiTouchEvent &evt)
 {
-	if(mCameraMan) {
-		mCameraMan->injectMouseMove(evt);
+//	if(mCameraMan) {
+//		mCameraMan->injectMouseMove(evt);
+//	}
+	if(mCharacter) {
+		
+		mCharacter->injectMouseMove(evt);
 	}
 }
 
