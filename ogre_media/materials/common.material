@@ -107,16 +107,6 @@ material Examples/Rockwall
 	{
 		pass
 		{
-			vertex_program_ref TexturedVP
-    	         	{
-	            		param_named_auto worldViewProj worldviewproj_matrix
-      		 	}
-     
-      		 	fragment_program_ref TexturedFP
-      		 	{
-	    	     		param_named textureMap 0
-      		 	}
-			
 			texture_unit
 			{
 				texture rockwall.png

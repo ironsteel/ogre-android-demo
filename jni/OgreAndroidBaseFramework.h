@@ -28,8 +28,10 @@
 #include "SinbadCharacterController.h"
 #include "AndroidKeyboard.h"
 #include "SdkTrays.h"
+#include "ShaderGeneratorResolverListener.h"
 
-class OgreAndroidBaseFramework : public Ogre::Singleton<OgreAndroidBaseFramework>, Ogre::FrameListener
+using namespace OgreBites;
+class OgreAndroidBaseFramework : public Ogre::Singleton<OgreAndroidBaseFramework>, Ogre::FrameListener, OgreBites::SdkTrayListener
 {
 
 public:
@@ -44,18 +46,23 @@ public:
 		mCharacter = NULL;
 		mTrays = NULL;
         mLastTime = 0;
+		mKeyboard = new AndroidKeyboard();
     }
     
     virtual ~OgreAndroidBaseFramework()
     {
-        destroyRenderWindow();
+		destroyRenderWindow();
 		
-        if(mRoot) delete mRoot;
-        if(mGles2Plugin) delete mGles2Plugin;
-        if(mPfxPlugin) delete mPfxPlugin;
+		
+		if(mTrays) delete mTrays;
+		if(mRoot) delete mRoot;
+		if(mGles2Plugin) delete mGles2Plugin;
+		if(mPfxPlugin) delete mPfxPlugin;
 		if(mLogManager) delete mLogManager;
 		if(mCameraMan) delete mCameraMan;
 		if(mKeyboard) delete mKeyboard;
+		if(mCharacter) delete mCharacter;
+		if(mTechniqueResolver) delete mTechniqueResolver;
     }
     
     void destroyRenderWindow()
@@ -90,6 +97,8 @@ public:
 	}
 	
 	void initializeResourceGroups();
+	
+	void buttonHit(Button *button);
 	
 	void renderOneFrame()
 	{
@@ -127,6 +136,7 @@ private:
 	Ogre::SceneNode *mRazorNode;
 	AndroidKeyboard *mKeyboard;
 	OgreBites::SdkTrayManager *mTrays;
+	ShaderGeneratorResolverListener *mTechniqueResolver;
 	
 	Ogre::map<Ogre::String,Ogre::String>::type mResourceMap;
 	

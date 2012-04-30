@@ -16,7 +16,7 @@
 
 
 #include "OgreAndroidBaseFramework.h"
-
+#include "OgreRTShaderSystem.h"
 template <> OgreAndroidBaseFramework* Ogre::Singleton<OgreAndroidBaseFramework>::msSingleton = 0;
 
 OgreAndroidBaseFramework* OgreAndroidBaseFramework::getSingletonPtr(void) 
@@ -65,9 +65,10 @@ bool OgreAndroidBaseFramework::initOgreRoot()
 		addResourceLocation("/sdcard/ogre_media/shaders", "Essential");
 		addResourceLocation("/sdcard/ogre_media/materials", "Essential");
 		addResourceLocation("/sdcard/ogre_media/meshes", "Essential");
-//		addResourceLocation("/sdcard/ogre_media/trays", "Essential");
-//		addResourceLocation("/sdcard/ogre_media/font-defs", "Essential");
-//		addResourceLocation("/sdcard/ogre_media/trays-materials", "Essential");
+		addResourceLocation("/sdcard/ogre_media/rtshader", "Essential");
+		addResourceLocation("/sdcard/ogre_media/trays", "Essential");
+		addResourceLocation("/sdcard/ogre_media/font-defs", "Essential");
+		addResourceLocation("/sdcard/ogre_media/trays-materials", "Essential");
 		
 	    mRoot->addFrameListener(this);
 		mKeyboard = new AndroidKeyboard();
@@ -86,29 +87,30 @@ void OgreAndroidBaseFramework::createScene()
 	 Ogre::TextureManager::getSingletonPtr()->setDefaultNumMipmaps(0);
 	 mCamera = mSceneManager->createCamera("Camera");
 	 mViewport = mRenderWindow->addViewport(mCamera);
+	 
 	 mCamera->setAspectRatio(Ogre::Real(mViewport->getActualWidth()) / Ogre::Real(mViewport->getActualHeight())); 
+//	 mCamera->setNearClipDistance(0.1);
+//	 mCamera->setFarClipDistance(1000);
 	 mViewport->setCamera(mCamera);
-	 
-	 
+	 if(Ogre::RTShader::ShaderGenerator::initialize()) {
+		 Ogre::RTShader::ShaderGenerator* shaderGen = Ogre::RTShader::ShaderGenerator::getSingletonPtr();
+		 shaderGen->addSceneManager(mSceneManager);
+	 }
+	 mTechniqueResolver = new ShaderGeneratorResolverListener(Ogre::RTShader::ShaderGenerator::getSingletonPtr());
+	 Ogre::MaterialManager::getSingletonPtr()->addListener(mTechniqueResolver);
+   
 	 
 	 mCameraMan = new OgreBites::SdkCameraMan(mCamera);
 	 mCameraMan->setStyle(OgreBites::CS_MANUAL);
-	 
-	 
-	 Ogre::MeshManager::getSingleton().createPlane("floor", Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME,
-	                                               Ogre::Plane(Ogre::Vector3::UNIT_Y, 0), 100, 100, 10, 10, true, 1, 10, 10, Ogre::Vector3::UNIT_Z);
-	 
-	 Ogre::Entity* floor = mSceneManager->createEntity("Floor", "floor");
-	 floor->setMaterialName("Examples/Rockwall");
-	
-	 
-	 mSceneManager->getRootSceneNode()->attachObject(floor);
+	 mTrays = new OgreBites::SdkTrayManager("Sdk", mRenderWindow, NULL);
+	 mTrays->setListener(this);
+	 mTrays->hideLogo();
+	 mTrays->showCursor();
+
+	 mTrays->createButton(OgreBites::TL_BOTTOMRIGHT, "Forward", "Forward");
+	 mTrays->createButton(OgreBites::TL_BOTTOMLEFT, "Back", "Back");
+	 mSceneManager->setSkyBox(true, "SkyBox", 30, true);
 	 mCharacter = new SinbadCharacterController(mCamera);
-//	 mTrays = new OgreBites::SdkTrayManager("SdkTrays", mRenderWindow, NULL, NULL);
-//	 mTrays->showLogo(OgreBites::TL_BOTTOMLEFT);
-//	 mTrays->createDecorWidget(OgreBites::TL_TOPRIGHT, "Decor", "SdkTrays/Logo");
-	 
-	 mSceneManager->setSkyBox(true, "SkyBox", 20, true);
 }
 
 
@@ -125,6 +127,21 @@ void OgreAndroidBaseFramework::initializeResourceGroups()
 	
 }
 
+void OgreAndroidBaseFramework::buttonHit(Button *button)
+{
+	if(button->getName() == "Forward") {
+		OIS::KeyEvent evt(mKeyboard, OIS::KC_W, 0);
+		mCharacter->injectKeyDown(evt);
+		return;
+	}
+	
+	if(button->getName() == "Back") {
+		OIS::KeyEvent evt(mKeyboard, OIS::KC_S, 0);
+		mCharacter->injectKeyDown(evt);
+		return;
+	}
+}
+
 void OgreAndroidBaseFramework::addResourceLocation(Ogre::String path, Ogre::String resourceGroup)
 {
 	mResourceMap[path] = resourceGroup;
@@ -132,37 +149,44 @@ void OgreAndroidBaseFramework::addResourceLocation(Ogre::String path, Ogre::Stri
 
 void OgreAndroidBaseFramework::injectTouchDown(OIS::MultiTouchEvent &evt)
 {
-//	if(mCameraMan) {
-//		mCameraMan->injectMouseDown(evt);
-//	}
+	
+	if(mTrays) {
+		mTrays->injectMouseDown(evt);
+		mTrays->injectMouseDown(evt);
+	}
+	
 	if(mCharacter) {
-		OIS::KeyEvent evtKey(mKeyboard, OIS::KC_E, 0);
-		mCharacter->injectKeyDown(evtKey);
 		mCharacter->injectMouseDown(evt);
 	}
+	/*if(mCameraMan) {
+		mCameraMan->injectMouseDown(evt);
+	}*/
 }
 
 void OgreAndroidBaseFramework::injectTouchUp(OIS::MultiTouchEvent &evt)
 {
-//	if(mCameraMan) {
-//		mCameraMan->injectMouseUp(evt);
-//	}
-	if(mCharacter) {
-		OIS::KeyEvent evtKey(mKeyboard, OIS::KC_E, 0);
-		mCharacter->injectKeyUp(evtKey);
+	if(mTrays) {
+		mTrays->injectMouseUp(evt);
+		mTrays->injectMouseUp(evt);
+	}
+	if(mCameraMan) {
+		mCameraMan->injectMouseUp(evt);
 	}
 
 }
 
 void OgreAndroidBaseFramework::injectTouchMove(OIS::MultiTouchEvent &evt)
 {
-//	if(mCameraMan) {
-//		mCameraMan->injectMouseMove(evt);
-//	}
+	if(mTrays) {
+		mTrays->injectMouseMove(evt);
+		mTrays->injectMouseMove(evt);
+	}
 	if(mCharacter) {
-		
 		mCharacter->injectMouseMove(evt);
 	}
+	/*if(mCameraMan) {
+		mCameraMan->injectMouseMove(evt);
+	}*/
 }
 
 

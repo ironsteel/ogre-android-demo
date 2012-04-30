@@ -11,7 +11,8 @@ LOCAL_C_INCLUDES	:= $(OGRE_ROOT)/include \
 	 	$(OIS_ROOT)/includes \
     $(OGRE_ROOT)/PlugIns/ParticleFX/include \
 	 	$(OGRE_ROOT)/Samples/Browser/include/ \
-	 	$(OGRE_ROOT)/Samples/Common/include
+	 	$(OGRE_ROOT)/Samples/Common/include \
+                $(OGRE_ROOT)/Components/RTShaderSystem/include
 									
 
 LOCAL_CFLAGS		+= -DFREEIMAGE_LIB=1 -DPNG_STATIC=1 -DOGRE_STATIC_LIB=1 -DUSE_RTSHADER_SYSTEM=1
@@ -27,7 +28,8 @@ LOCAL_SRC_FILES 	:= acpwrapper.cpp \
 		nv_util/nv_util.cpp \
 		SdkCameraMan.h \
 		OgreAndroidBaseFramework.cpp \
-                SinbadCharacterController.h
+                SinbadCharacterController.h \
+                ShaderGeneratorResolverListener.cpp
 
 LOCAL_SHARED_LIBRARIES := ois ogre 
 
