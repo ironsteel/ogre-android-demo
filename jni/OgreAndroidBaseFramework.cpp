@@ -89,8 +89,7 @@ void OgreAndroidBaseFramework::createScene()
 	 mViewport = mRenderWindow->addViewport(mCamera);
 	 
 	 mCamera->setAspectRatio(Ogre::Real(mViewport->getActualWidth()) / Ogre::Real(mViewport->getActualHeight())); 
-//	 mCamera->setNearClipDistance(0.1);
-//	 mCamera->setFarClipDistance(1000);
+	 
 	 mViewport->setCamera(mCamera);
 	 if(Ogre::RTShader::ShaderGenerator::initialize()) {
 		 Ogre::RTShader::ShaderGenerator* shaderGen = Ogre::RTShader::ShaderGenerator::getSingletonPtr();
@@ -152,7 +151,6 @@ void OgreAndroidBaseFramework::injectTouchDown(OIS::MultiTouchEvent &evt)
 	
 	if(mTrays) {
 		mTrays->injectMouseDown(evt);
-		mTrays->injectMouseDown(evt);
 	}
 	
 	if(mCharacter) {
@@ -167,7 +165,6 @@ void OgreAndroidBaseFramework::injectTouchUp(OIS::MultiTouchEvent &evt)
 {
 	if(mTrays) {
 		mTrays->injectMouseUp(evt);
-		mTrays->injectMouseUp(evt);
 	}
 	if(mCameraMan) {
 		mCameraMan->injectMouseUp(evt);
@@ -178,7 +175,6 @@ void OgreAndroidBaseFramework::injectTouchUp(OIS::MultiTouchEvent &evt)
 void OgreAndroidBaseFramework::injectTouchMove(OIS::MultiTouchEvent &evt)
 {
 	if(mTrays) {
-		mTrays->injectMouseMove(evt);
 		mTrays->injectMouseMove(evt);
 	}
 	if(mCharacter) {
