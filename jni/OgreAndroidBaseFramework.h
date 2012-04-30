@@ -53,7 +53,7 @@ public:
 		mTrays = NULL;
 		mAndroidArchiveFactory = NULL;
         mLastTime = 0;
-		mKeyboard = new AndroidKeyboard();
+		mKeyboard = NULL;
 		mJni = jEnv;
     }
     

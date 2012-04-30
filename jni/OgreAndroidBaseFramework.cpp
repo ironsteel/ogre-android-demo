@@ -66,15 +66,14 @@ bool OgreAndroidBaseFramework::initOgreRoot()
 		
 		// From android assets
 		addResourceLocation("RTShaderLib.mp3", "Essential", "Android");
+		addResourceLocation("SdkTrays.mp3", "Essential", "Android");
+		addResourceLocation("Sinbad.mp3", "Essential", "Android");
 		
 		// From filesystem
 		addResourceLocation("/sdcard/ogre_media/textures", "Essential", "FileSystem");
 		addResourceLocation("/sdcard/ogre_media/shaders", "Essential", "FileSystem");
 		addResourceLocation("/sdcard/ogre_media/materials", "Essential", "FileSystem");
 		addResourceLocation("/sdcard/ogre_media/meshes", "Essential", "FileSystem");
-		addResourceLocation("/sdcard/ogre_media/trays", "Essential", "FileSystem");
-		addResourceLocation("/sdcard/ogre_media/font-defs", "Essential", "FileSystem");
-		addResourceLocation("/sdcard/ogre_media/trays-materials", "Essential", "FileSystem");
 		
 	    mRoot->addFrameListener(this);
 		mKeyboard = new AndroidKeyboard();
