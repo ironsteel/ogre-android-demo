@@ -22,6 +22,7 @@
 #include <OgreGLES2Plugin.h>
 #include <OgreParticleFXPlugin.h>
 #include <OgreRenderTargetListener.h>
+#include <jni.h>
 #include "AndroidLogListener.h"
 #include "SdkCameraMan.h"
 #include "OISMultiTouch.h"
@@ -29,13 +30,18 @@
 #include "AndroidKeyboard.h"
 #include "SdkTrays.h"
 #include "ShaderGeneratorResolverListener.h"
+#include "AndroidArchive.h"
+
+typedef Ogre::String Location;
+typedef Ogre::String ArchiveType;
+typedef Ogre::String GroupName;
 
 using namespace OgreBites;
 class OgreAndroidBaseFramework : public Ogre::Singleton<OgreAndroidBaseFramework>, Ogre::FrameListener, OgreBites::SdkTrayListener
 {
 
 public:
-    OgreAndroidBaseFramework()
+    OgreAndroidBaseFramework(JNIEnv *jEnv)
     {
         mRenderWindow = NULL;
         mGles2Plugin = NULL;
@@ -45,8 +51,10 @@ public:
 		mKeyboard = NULL;
 		mCharacter = NULL;
 		mTrays = NULL;
+		mAndroidArchiveFactory = NULL;
         mLastTime = 0;
 		mKeyboard = new AndroidKeyboard();
+		mJni = jEnv;
     }
     
     virtual ~OgreAndroidBaseFramework()
@@ -63,6 +71,7 @@ public:
 		if(mKeyboard) delete mKeyboard;
 		if(mCharacter) delete mCharacter;
 		if(mTechniqueResolver) delete mTechniqueResolver;
+		if(mAndroidArchiveFactory) delete mAndroidArchiveFactory;
     }
     
     void destroyRenderWindow()
@@ -85,7 +94,7 @@ public:
 	void initRenderWindow(unsigned int windowHandle, unsigned int width, unsigned int height, unsigned int contextHandle);
 	
 	
-	void addResourceLocation(Ogre::String path, Ogre::String resourceGroup);
+	void addResourceLocation(Location path, GroupName name, ArchiveType type);
 	
 	void injectTouchUp(OIS::MultiTouchEvent &evt);
 	void injectTouchDown(OIS::MultiTouchEvent &evt);
@@ -115,6 +124,7 @@ public:
 	{
 		if(mCharacter)
 			mCharacter->addTime(evt.timeSinceLastFrame);
+		
 	}
 	
 	
@@ -137,8 +147,15 @@ private:
 	AndroidKeyboard *mKeyboard;
 	OgreBites::SdkTrayManager *mTrays;
 	ShaderGeneratorResolverListener *mTechniqueResolver;
+	AndroidArchiveFactory *mAndroidArchiveFactory;
 	
-	Ogre::map<Ogre::String,Ogre::String>::type mResourceMap;
+	JNIEnv *mJni;
+	
+	
+	typedef std::pair<GroupName, ArchiveType> Value;
+	
+	Ogre::map<Location , Value>::type mResourceMap;
+	
 	
     Ogre::Timer mTimer;
 	

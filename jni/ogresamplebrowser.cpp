@@ -82,7 +82,7 @@ static void injectKeyEvent(int action, int keyCode){
  
 jboolean init(JNIEnv* env, jobject thiz)
 {
-	new OgreAndroidBaseFramework();
+	new OgreAndroidBaseFramework(env);
 	
 	if(!OgreAndroidBaseFramework::getSingletonPtr()->initOgreRoot()) {
 		return JNI_FALSE;

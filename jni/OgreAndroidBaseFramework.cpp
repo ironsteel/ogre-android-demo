@@ -21,9 +21,8 @@ template <> OgreAndroidBaseFramework* Ogre::Singleton<OgreAndroidBaseFramework>:
 
 OgreAndroidBaseFramework* OgreAndroidBaseFramework::getSingletonPtr(void) 
 {
-	if(!msSingleton)
-		msSingleton = new OgreAndroidBaseFramework();
-	return msSingleton;
+	if(msSingleton)
+		return msSingleton;
 }
 
 
@@ -60,15 +59,22 @@ bool OgreAndroidBaseFramework::initOgreRoot()
 		
 		mLastTime = mTimer.getMilliseconds();
 		
+		mAndroidArchiveFactory = new AndroidArchiveFactory(mJni);
+		Ogre::ArchiveManager::getSingletonPtr()->addArchiveFactory(mAndroidArchiveFactory);
+		
 		createResourceGroup("Essential");
-		addResourceLocation("/sdcard/ogre_media/textures", "Essential");
-		addResourceLocation("/sdcard/ogre_media/shaders", "Essential");
-		addResourceLocation("/sdcard/ogre_media/materials", "Essential");
-		addResourceLocation("/sdcard/ogre_media/meshes", "Essential");
-		addResourceLocation("/sdcard/ogre_media/rtshader", "Essential");
-		addResourceLocation("/sdcard/ogre_media/trays", "Essential");
-		addResourceLocation("/sdcard/ogre_media/font-defs", "Essential");
-		addResourceLocation("/sdcard/ogre_media/trays-materials", "Essential");
+		
+		// From android assets
+		addResourceLocation("RTShaderLib.mp3", "Essential", "Android");
+		
+		// From filesystem
+		addResourceLocation("/sdcard/ogre_media/textures", "Essential", "FileSystem");
+		addResourceLocation("/sdcard/ogre_media/shaders", "Essential", "FileSystem");
+		addResourceLocation("/sdcard/ogre_media/materials", "Essential", "FileSystem");
+		addResourceLocation("/sdcard/ogre_media/meshes", "Essential", "FileSystem");
+		addResourceLocation("/sdcard/ogre_media/trays", "Essential", "FileSystem");
+		addResourceLocation("/sdcard/ogre_media/font-defs", "Essential", "FileSystem");
+		addResourceLocation("/sdcard/ogre_media/trays-materials", "Essential", "FileSystem");
 		
 	    mRoot->addFrameListener(this);
 		mKeyboard = new AndroidKeyboard();
@@ -117,9 +123,9 @@ void OgreAndroidBaseFramework::createScene()
 void OgreAndroidBaseFramework::initializeResourceGroups()
 {
 	
-	for(Ogre::map<Ogre::String,Ogre::String>::type::iterator i = mResourceMap.begin(); i != mResourceMap.end(); ++i)
+	for(Ogre::map<Location, Value>::type::iterator i = mResourceMap.begin(); i != mResourceMap.end(); ++i)
 	{
-		Ogre::ResourceGroupManager::getSingleton().addResourceLocation(i->first, "FileSystem", i->second);  
+		Ogre::ResourceGroupManager::getSingleton().addResourceLocation(i->first, i->second.second, i->second.first);  
     }
 	
 	Ogre::ResourceGroupManager::getSingletonPtr()->initialiseAllResourceGroups();
@@ -141,9 +147,10 @@ void OgreAndroidBaseFramework::buttonHit(Button *button)
 	}
 }
 
-void OgreAndroidBaseFramework::addResourceLocation(Ogre::String path, Ogre::String resourceGroup)
+void OgreAndroidBaseFramework::addResourceLocation(Location path, GroupName name, ArchiveType type)
 {
-	mResourceMap[path] = resourceGroup;
+	
+	mResourceMap[path] = Value(name, type);
 }
 
 void OgreAndroidBaseFramework::injectTouchDown(OIS::MultiTouchEvent &evt)
