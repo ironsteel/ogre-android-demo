@@ -1,3 +1,3 @@
-Simple ogre demo project for android derived from the ogre sources
+Simple ogre demo project for android derived from the old ogre 1.8 sources.
 
-TODO: Document building steps
+WARNING: This project is extremely outdated. See http://www.ogre3d.org/tikiwiki/tiki-index.php?page=CMake+Quick+Start+Guide&tikiversion=Android for official android support.  
